@@ -1,4 +1,4 @@
-module github.com/matang28/go-stream
+module github.com/matang28/go-streams
 
 go 1.11
 
