@@ -52,6 +52,8 @@ Loop:
 			bufferIdx++
 		}
 	}
+	this.processBuffer(stream.GetSource(), this.buffer[0:bufferIdx], handlers, errs)
+	bufferIdx = 0
 }
 
 func (this *bufferedProcessor) processBuffer(source Source, entries []Entry, handlers []interface{}, errs ErrorChannel) {
