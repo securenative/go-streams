@@ -52,8 +52,8 @@ func (this *sequentialIntegerSource) Ping() error {
 	return nil
 }
 
-func (this *sequentialIntegerSource) CommitEntry(key string) error {
-	this.latestCommit = key
+func (this *sequentialIntegerSource) CommitEntry(keys ...string) error {
+	this.latestCommit = keys[len(keys)-1]
 	return nil
 }
 

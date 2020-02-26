@@ -6,18 +6,20 @@ import (
 )
 
 type bufferedProcessor struct {
-	entryCh EntryChannel
-	size    int
-	timeout time.Duration
-	buffer  []Entry
+	entryCh    EntryChannel
+	size       int
+	timeout    time.Duration
+	buffer     []Entry
+	bufferKeys []string
 }
 
 func NewBufferedProcessor(size int, timeout time.Duration) *bufferedProcessor {
 	return &bufferedProcessor{
-		timeout: timeout,
-		size:    size,
-		entryCh: make(EntryChannel, size),
-		buffer:  make([]Entry, size),
+		timeout:    timeout,
+		size:       size,
+		entryCh:    make(EntryChannel, size),
+		buffer:     make([]Entry, size),
+		bufferKeys: make([]string, size),
 	}
 }
 
@@ -36,12 +38,12 @@ func (this *bufferedProcessor) Process(stream Stream, errs ErrorChannel) {
 Loop:
 	for {
 		if bufferIdx == this.size {
-			this.processBuffer(stream.GetSource(), this.buffer, handlers, errs)
+			this.processBuffer(stream.GetSource(), this.buffer, this.bufferKeys, handlers, errs)
 			bufferIdx = 0
 		}
 		select {
 		case <-timeoutCh:
-			this.processBuffer(stream.GetSource(), this.buffer[0:bufferIdx], handlers, errs)
+			this.processBuffer(stream.GetSource(), this.buffer[0:bufferIdx], this.bufferKeys[0:bufferIdx], handlers, errs)
 			bufferIdx = 0
 
 		case entry, ok := <-this.entryCh:
@@ -49,14 +51,15 @@ Loop:
 				break Loop
 			}
 			this.buffer[bufferIdx] = entry
+			this.bufferKeys[bufferIdx] = entry.Key
 			bufferIdx++
 		}
 	}
-	this.processBuffer(stream.GetSource(), this.buffer[0:bufferIdx], handlers, errs)
+	this.processBuffer(stream.GetSource(), this.buffer[0:bufferIdx], this.bufferKeys[0:bufferIdx], handlers, errs)
 	bufferIdx = 0
 }
 
-func (this *bufferedProcessor) processBuffer(source Source, entries []Entry, handlers []interface{}, errs ErrorChannel) {
+func (this *bufferedProcessor) processBuffer(source Source, entries []Entry, keys []string, handlers []interface{}, errs ErrorChannel) {
 	if len(entries) == 0 {
 		return
 	}
@@ -96,8 +99,8 @@ func (this *bufferedProcessor) processBuffer(source Source, entries []Entry, han
 				if err := RecoverSinkBatch(handler, arr, errs); err != nil {
 					errs <- err
 				} else {
-					lastIdx := len(entries) - 1
-					if err := source.CommitEntry(entries[lastIdx].Key); err != nil {
+
+					if err := source.CommitEntry(keys...); err != nil {
 						errs <- err
 					}
 				}

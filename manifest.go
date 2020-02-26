@@ -98,7 +98,7 @@ type Source interface {
 	// Commit entry will be called by the stream sinks
 	// its an optional method and if you don't need to manage idempotence you can
 	// leave it to 'return nil'
-	CommitEntry(key string) error
+	CommitEntry(keys ...string) error
 
 	// Name should return a unique name for the given source
 	Name() string

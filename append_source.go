@@ -46,8 +46,8 @@ func (this *AppendSource) Stop() error {
 	return nil
 }
 
-func (this *AppendSource) CommitEntry(key string) error {
-	this.latestCommit = key
+func (this *AppendSource) CommitEntry(keys ...string) error {
+	this.latestCommit = keys[len(keys)-1]
 	return nil
 }
 

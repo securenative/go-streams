@@ -59,8 +59,8 @@ func (this *PollingSource) Stop() error {
 	return nil
 }
 
-func (this *PollingSource) CommitEntry(key string) error {
-	this.lastCommit = key
+func (this *PollingSource) CommitEntry(keys ...string) error {
+	this.lastCommit = keys[len(keys)-1]
 	return nil
 }
 
