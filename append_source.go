@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const appendSourceName = "arraySource"
+const appendSourceName = "appendSource"
 
 type AppendSource struct {
 	name         string
