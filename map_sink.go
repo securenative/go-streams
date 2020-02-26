@@ -44,6 +44,10 @@ func (this *ReplacingMapSink) Batch(entry ...Entry) error {
 	return nil
 }
 
+func (this *ReplacingMapSink) Ping() error {
+	return nil
+}
+
 func (this *ReplacingMapSink) Map() map[string]interface{} {
 	this.mutex.RLock()
 	defer this.mutex.RUnlock()
@@ -92,6 +96,10 @@ func (this *IgnoringMapSink) Batch(entry ...Entry) error {
 	return nil
 }
 
+func (this *IgnoringMapSink) Ping() error {
+	return nil
+}
+
 func (this *IgnoringMapSink) Map() map[string]interface{} {
 	this.mutex.RLock()
 	defer this.mutex.RUnlock()
@@ -133,6 +141,10 @@ func (this *MultiMapSink) Batch(entry ...Entry) error {
 		key := this.keyExtractor(entry[idx])
 		this.m[key] = append(this.m[key], entry[idx].Value)
 	}
+	return nil
+}
+
+func (this *MultiMapSink) Ping() error {
 	return nil
 }
 

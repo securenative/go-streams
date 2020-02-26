@@ -1,5 +1,11 @@
 package go_streams
 
+import (
+	"fmt"
+	"reflect"
+	"time"
+)
+
 type streamAndProcessor struct {
 	stream    Stream
 	processor Processor
@@ -12,14 +18,16 @@ type engine struct {
 	errorChannel     ErrorChannel
 	stopChannel      chan bool
 	stoppedStreams   int
+	monitorTicker    *time.Ticker
 }
 
-func NewEngine(processor ProcessorFactory) *engine {
+func NewEngine(processor ProcessorFactory, monitorInterval time.Duration) *engine {
 	return &engine{
 		processorFactory: processor,
 		errorChannel:     make(ErrorChannel),
 		stopChannel:      make(chan bool),
 		streams:          make(map[string]streamAndProcessor),
+		monitorTicker:    time.NewTicker(monitorInterval),
 	}
 }
 
@@ -43,6 +51,8 @@ func (this *engine) SetErrorHandler(handler ErrorHandler) {
 }
 
 func (this *engine) Start() {
+	go this.monitor()
+
 	if len(this.streams) == 0 {
 		return
 	}
@@ -57,6 +67,7 @@ func (this *engine) Start() {
 }
 
 func (this *engine) Stop() {
+	this.monitorTicker.Stop()
 	for _, s := range this.streams {
 		err := s.stream.GetSource().Stop()
 		if err != nil {
@@ -89,5 +100,48 @@ func (this *engine) handleSourceEof(source Source) {
 
 	if this.stoppedStreams == len(this.streams) {
 		this.stopChannel <- true
+		this.monitorTicker.Stop()
 	}
+}
+
+func (this *engine) monitor() {
+	for {
+		_, ok := <-this.monitorTicker.C
+		if !ok {
+			break
+		}
+
+		for _, stream := range this.streams {
+			if err := checkSource(stream.stream.GetSource(), 3, 1*time.Second); err != nil {
+				panic(err)
+			}
+
+			if err := checkSinks(stream.stream.GetHandlers(), 3, 1*time.Second); err != nil {
+				panic(err)
+			}
+		}
+	}
+}
+
+func checkSinks(handlers []interface{}, retries int, backoff time.Duration) error {
+	for _, handler := range handlers {
+		switch sink := handler.(type) {
+		case Sink:
+			if err := checkSource(sink, retries, backoff); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func checkSource(source Pingable, retries int, backoff time.Duration) error {
+	for i := 0; i < retries; i++ {
+		if err := source.Ping(); err != nil {
+			time.Sleep(time.Duration(i+1) * backoff)
+		} else {
+			return nil
+		}
+	}
+	return fmt.Errorf("source with name: %s isn't availiable after %d retries", reflect.ValueOf(source).String(), retries)
 }

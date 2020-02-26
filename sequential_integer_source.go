@@ -48,6 +48,10 @@ func (this *sequentialIntegerSource) Stop() error {
 	return nil
 }
 
+func (this *sequentialIntegerSource) Ping() error {
+	return nil
+}
+
 func (this *sequentialIntegerSource) CommitEntry(key string) error {
 	this.latestCommit = key
 	return nil

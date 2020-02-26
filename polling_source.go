@@ -49,6 +49,10 @@ Loop:
 	errorChannel <- NewEofError(this)
 }
 
+func (this *PollingSource) Ping() error {
+	return nil
+}
+
 func (this *PollingSource) Stop() error {
 	this.timer.Stop()
 	this.closeCh <- true

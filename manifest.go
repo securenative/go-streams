@@ -74,8 +74,19 @@ type Processor interface {
 // ProcessorFactory is a type alias to a function which generates processors
 type ProcessorFactory func() Processor
 
+// Pingable are structs that implements the Ping method
+type Pingable interface {
+	// Ping should return error if the sink isn't available,
+	// in that case, the engine will monitor periodically each one of the sinks
+	// and will try to reconnect, in case that we can't reconnect the engine
+	// will panic causing the stream processing to stop.
+	Ping() error
+}
+
 // Source is responsible for sending entries into streams.
 type Source interface {
+	Pingable
+
 	// Start will notify the source to start sending new entries to the EntryChannel
 	// Start will be called with a new go-routine.
 	Start(channel EntryChannel, errorChannel ErrorChannel)
@@ -95,6 +106,8 @@ type Source interface {
 
 // Sink is responsible for dumping entries into sinks such as: files, databases, memory, etc...
 type Sink interface {
+	Pingable
+
 	// Single will dump a single entry to the sink
 	Single(entry Entry) error
 

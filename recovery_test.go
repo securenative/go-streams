@@ -59,3 +59,7 @@ func (s *panicSink) Single(entry Entry) error {
 func (s *panicSink) Batch(entry ...Entry) error {
 	panic("batch error")
 }
+
+func (this *panicSink) Ping() error {
+	return nil
+}

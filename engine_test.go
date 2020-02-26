@@ -7,7 +7,7 @@ import (
 )
 
 func TestEngine_HappyCase_SingleStream(t *testing.T) {
-	engine := NewEngine(NewDirectProcessorFactory())
+	engine := NewEngine(NewDirectProcessorFactory(), 10*time.Second)
 	source := NewSequentialIntegerSource(10, time.Millisecond)
 	sink := NewArraySink()
 	stream := addOneFilterOddsStream(source, sink)
@@ -21,7 +21,7 @@ func TestEngine_HappyCase_SingleStream(t *testing.T) {
 }
 
 func TestEngine_HappyCase_MultipleStreamsDifferentSource(t *testing.T) {
-	engine := NewEngine(NewDirectProcessorFactory())
+	engine := NewEngine(NewDirectProcessorFactory(), 10*time.Second)
 	source1 := NewSequentialIntegerSource(10, time.Millisecond)
 	source2 := NewSequentialIntegerSource(20, time.Millisecond)
 
@@ -44,7 +44,7 @@ func TestEngine_HappyCase_MultipleStreamsDifferentSource(t *testing.T) {
 }
 
 func TestEngine_MultipleStreamsSameSource_ShouldReturnError(t *testing.T) {
-	engine := NewEngine(NewDirectProcessorFactory())
+	engine := NewEngine(NewDirectProcessorFactory(), 10*time.Second)
 	source := NewSequentialIntegerSource(10, time.Millisecond)
 
 	sink1 := NewArraySink()
@@ -63,7 +63,7 @@ func TestEngine_MultipleStreamsSameSource_ShouldReturnError(t *testing.T) {
 }
 
 func TestEngine_ErrorHandler_ShouldCatchErrors(t *testing.T) {
-	engine := NewEngine(NewDirectProcessorFactory())
+	engine := NewEngine(NewDirectProcessorFactory(), 10*time.Second)
 	source := NewSequentialIntegerSource(10, time.Millisecond)
 	blocker := make(chan error)
 
@@ -85,7 +85,7 @@ func TestEngine_ErrorHandler_ShouldCatchErrors(t *testing.T) {
 }
 
 func TestEngine_Stop_ShouldStopAllStreams(t *testing.T) {
-	engine := NewEngine(NewDirectProcessorFactory())
+	engine := NewEngine(NewDirectProcessorFactory(), 10*time.Second)
 	source1 := NewSequentialIntegerSource(10, 500*time.Millisecond)
 	source2 := NewSequentialIntegerSource(20, 250*time.Millisecond)
 

@@ -29,6 +29,10 @@ func (this *ArraySink) Batch(entry ...Entry) error {
 	return nil
 }
 
+func (this *ArraySink) Ping() error {
+	return nil
+}
+
 func (this *ArraySink) Array() []interface{} {
 	this.mutex.RLock()
 	defer this.mutex.RUnlock()

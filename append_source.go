@@ -62,6 +62,10 @@ func (this *AppendSource) Append(key string, entry interface{}) {
 	}
 }
 
+func (this *AppendSource) Ping() error {
+	return nil
+}
+
 func (this *AppendSource) LatestCommit() string {
 	return this.latestCommit
 }

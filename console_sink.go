@@ -21,3 +21,7 @@ func (this *consoleSink) Batch(entry ...Entry) error {
 	}
 	return nil
 }
+
+func (this *consoleSink) Ping() error {
+	return nil
+}
