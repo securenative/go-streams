@@ -17,6 +17,7 @@ func NewDirectProcessorFactory() ProcessorFactory {
 }
 
 func (this *directProcessor) Process(stream Stream, errs ErrorChannel) {
+	logger.Info("Starting to process stream with direct processor")
 	handlers := stream.GetHandlers()
 
 	// Notify the source to start sending entries to the channel:
@@ -56,4 +57,5 @@ EntryLoop:
 			}
 		}
 	}
+	logger.Info("Done processing stream with direct processor")
 }

@@ -5,6 +5,7 @@ import "fmt"
 func RecoverFilter(filterFunc FilterFunc, entry Entry, errs ErrorChannel) bool {
 	defer func() {
 		if p := recover(); p != nil {
+			logger.Debug("Recovering from panic in filter step for entry: %+v", entry)
 			err, ok := p.(error)
 			if ok {
 				errs <- NewFilterError(err)
@@ -20,6 +21,7 @@ func RecoverFilter(filterFunc FilterFunc, entry Entry, errs ErrorChannel) bool {
 func RecoverMap(mapFunc MapFunc, entry Entry, errs ErrorChannel) interface{} {
 	defer func() {
 		if p := recover(); p != nil {
+			logger.Debug("Recovering from panic in map step for entry: %+v", entry)
 			err, ok := p.(error)
 			if ok {
 				errs <- NewMapError(err)
@@ -35,6 +37,7 @@ func RecoverMap(mapFunc MapFunc, entry Entry, errs ErrorChannel) interface{} {
 func RecoverSinkSingle(sink Sink, entry Entry, errs ErrorChannel) error {
 	defer func() {
 		if p := recover(); p != nil {
+			logger.Debug("Recovering from panic in sink (single) step for entry: %+v", entry)
 			err, ok := p.(error)
 			if ok {
 				errs <- NewSinkError(err)
@@ -50,6 +53,7 @@ func RecoverSinkSingle(sink Sink, entry Entry, errs ErrorChannel) error {
 func RecoverSinkBatch(sink Sink, entry []Entry, errs ErrorChannel) error {
 	defer func() {
 		if p := recover(); p != nil {
+			logger.Debug("Recovering from panic in sink (batch) step for entry: %+v", entry)
 			err, ok := p.(error)
 			if ok {
 				errs <- NewSinkError(err)

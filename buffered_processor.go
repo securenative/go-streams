@@ -30,6 +30,7 @@ func NewBufferedProcessorFactory(size int, timeout time.Duration) ProcessorFacto
 }
 
 func (this *bufferedProcessor) Process(stream Stream, errs ErrorChannel) {
+	logger.Info("Starting to process stream with buffered processor (flushing buffer on: %d entries or %d seconds)", this.size, this.timeout.Seconds())
 	handlers := stream.GetHandlers()
 	bufferIdx := 0
 	go stream.GetSource().Start(this.entryCh, errs)
@@ -57,6 +58,7 @@ Loop:
 	}
 	this.processBuffer(stream.GetSource(), this.buffer[0:bufferIdx], this.bufferKeys[0:bufferIdx], handlers, errs)
 	bufferIdx = 0
+	logger.Info("Done processing stream with buffered processor")
 }
 
 func (this *bufferedProcessor) processBuffer(source Source, entries []Entry, keys []string, handlers []interface{}, errs ErrorChannel) {
@@ -64,6 +66,7 @@ func (this *bufferedProcessor) processBuffer(source Source, entries []Entry, key
 		return
 	}
 
+	logger.Debug("Processing batch on %d entries", len(entries))
 	filteredCount := 0
 	for idx := range handlers {
 		switch handler := handlers[idx].(type) {
@@ -99,7 +102,6 @@ func (this *bufferedProcessor) processBuffer(source Source, entries []Entry, key
 				if err := RecoverSinkBatch(handler, arr, errs); err != nil {
 					errs <- err
 				} else {
-
 					if err := source.CommitEntry(keys...); err != nil {
 						errs <- err
 					}
@@ -111,4 +113,5 @@ func (this *bufferedProcessor) processBuffer(source Source, entries []Entry, key
 			log.Fatalf("unknown handler type: %+v", handler)
 		}
 	}
+	logger.Debug("Done processing batch of %d entries. %d entries was filtered out", len(entries), filteredCount)
 }

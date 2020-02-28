@@ -51,6 +51,7 @@ func (this *engine) SetErrorHandler(handler ErrorHandler) {
 }
 
 func (this *engine) Start() {
+	logger.Info("Starting engine...")
 	go this.monitor()
 
 	if len(this.streams) == 0 {
@@ -64,9 +65,11 @@ func (this *engine) Start() {
 	}
 
 	<-this.stopChannel
+	logger.Info("Engine stopped")
 }
 
 func (this *engine) Stop() {
+	logger.Info("Stopping engine...")
 	this.monitorTicker.Stop()
 	for _, s := range this.streams {
 		err := s.stream.GetSource().Stop()
@@ -85,6 +88,7 @@ func (this *engine) consumeErrors() {
 		case *EofError:
 			this.handleSourceEof(e.source)
 		default:
+			logger.Error(e.Error())
 			if this.errorHandler != nil && e != nil {
 				go this.errorHandler(e)
 			}

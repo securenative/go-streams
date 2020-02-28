@@ -61,6 +61,7 @@ func (this *PollingSource) Stop() error {
 
 func (this *PollingSource) CommitEntry(keys ...string) error {
 	this.lastCommit = keys[len(keys)-1]
+	logger.Debug("Committing entry: %s", this.lastCommit)
 	return nil
 }
 
