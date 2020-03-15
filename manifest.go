@@ -1,5 +1,7 @@
 package go_streams
 
+import "context"
+
 // Entry is the data model that go-streams passes between
 // different operators although the user never handle it directly
 // when creating new streams.
@@ -24,6 +26,18 @@ type KeyExtractor func(entry Entry) string
 // MapFunc is a function which transforms its input
 type MapFunc func(entry interface{}) interface{}
 
+// Like the MapFunc, but enables the function to be called with a context for more complex transformations
+type MapWithContext struct {
+	GetContextFunc     GetContextFunc
+	MapWithContextFunc MapWithContextFunc
+}
+
+// Map function that also get a context parameter
+type MapWithContextFunc func(context context.Context, entry interface{}) interface{}
+
+// A function that will pass context to the MapWithContextFunc
+type GetContextFunc func() context.Context
+
 // FilterFunc is a function that takes an entry an decided
 // if this entry should be filtered out
 // return true to keep the record or false to filter it out.
@@ -47,6 +61,9 @@ type Stream interface {
 
 	// Map entries
 	Map(fn MapFunc) Stream
+
+	//
+	MapWithContext(mapWithContext MapWithContext) Stream
 
 	// Sink (or dump) the stream entries to this Sink implementation
 	// such as file, database, memory, etc...

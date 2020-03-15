@@ -1,6 +1,9 @@
 package go_streams
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 func RecoverFilter(filterFunc FilterFunc, entry Entry, errs ErrorChannel) bool {
 	defer func() {
@@ -32,6 +35,22 @@ func RecoverMap(mapFunc MapFunc, entry Entry, errs ErrorChannel) interface{} {
 	}()
 
 	return mapFunc(entry.Value)
+}
+
+func RecoverMapWithContext(context context.Context, mapFunc MapWithContextFunc, entry Entry, errs ErrorChannel) interface{} {
+	defer func() {
+		if p := recover(); p != nil {
+			logger.Debug("Recovering from panic in mapWithContext step for entry: %+v", entry)
+			err, ok := p.(error)
+			if ok {
+				errs <- NewMapError(err)
+			} else {
+				errs <- NewMapError(fmt.Errorf("%v", p))
+			}
+		}
+	}()
+
+	return mapFunc(context, entry.Value)
 }
 
 func RecoverSinkSingle(sink Sink, entry Entry, errs ErrorChannel) error {

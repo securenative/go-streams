@@ -19,6 +19,11 @@ func (this *baseStream) Map(fn MapFunc) Stream {
 	return this
 }
 
+func (this *baseStream) MapWithContext(mapWithContext MapWithContext) Stream {
+	this.ops = append(this.ops, mapWithContext)
+	return this
+}
+
 func (this *baseStream) Sink(sink Sink) Stream {
 	this.ops = append(this.ops, sink)
 	return this

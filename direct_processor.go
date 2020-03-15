@@ -42,6 +42,10 @@ EntryLoop:
 			case MapFunc:
 				entry.Value = RecoverMap(handler, entry, errs)
 
+			case MapWithContext:
+				context := handler.GetContextFunc()
+				entry.Value = RecoverMapWithContext(context, handler.MapWithContextFunc, entry, errs)
+
 			case Sink:
 				if err := RecoverSinkSingle(handler, entry, errs); err != nil {
 					errs <- err

@@ -89,6 +89,15 @@ func (this *bufferedProcessor) processBuffer(source Source, entries []Entry, key
 				entries[idx].Value = RecoverMap(handler, entries[idx], errs)
 			}
 
+		case MapWithContext:
+			context := handler.GetContextFunc()
+			for idx := range entries {
+				if entries[idx].Filtered {
+					continue
+				}
+				entries[idx].Value = RecoverMapWithContext(context, handler.MapWithContextFunc, entries[idx], errs)
+			}
+
 		case Sink:
 			arr := make([]Entry, len(entries)-filteredCount)
 			arrIdx := 0
