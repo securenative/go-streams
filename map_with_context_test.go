@@ -1,7 +1,6 @@
 package go_streams
 
 import (
-	"context"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -56,13 +55,14 @@ func appendNumbers(source *AppendSource) {
 }
 
 func getMapFunc() MapWithContext {
-	ctx := context.WithValue(context.Background(), "addNum", 10)
+	ctx := make(map[string]interface{})
+	ctx["addNum"] = 10
 	return MapWithContext{
-		GetContextFunc: func() context.Context {
+		GetContextFunc: func() map[string]interface{} {
 			return ctx
 		},
-		MapWithContextFunc: func(context context.Context, entry interface{}) interface{} {
-			addNum := context.Value("addNum").(int)
+		MapWithContextFunc: func(context map[string]interface{}, entry interface{}) interface{} {
+			addNum := context["addNum"].(int)
 			num := entry.(int)
 			return num + addNum
 		},
