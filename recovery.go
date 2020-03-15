@@ -1,7 +1,6 @@
 package go_streams
 
 import (
-	"context"
 	"fmt"
 )
 
@@ -37,7 +36,7 @@ func RecoverMap(mapFunc MapFunc, entry Entry, errs ErrorChannel) interface{} {
 	return mapFunc(entry.Value)
 }
 
-func RecoverMapWithContext(context context.Context, mapFunc MapWithContextFunc, entry Entry, errs ErrorChannel) interface{} {
+func RecoverMapWithContext(context map[string]interface{}, mapFunc MapWithContextFunc, entry Entry, errs ErrorChannel) interface{} {
 	defer func() {
 		if p := recover(); p != nil {
 			logger.Debug("Recovering from panic in mapWithContext step for entry: %+v", entry)

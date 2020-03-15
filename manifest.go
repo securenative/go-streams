@@ -1,7 +1,5 @@
 package go_streams
 
-import "context"
-
 // Entry is the data model that go-streams passes between
 // different operators although the user never handle it directly
 // when creating new streams.
@@ -33,10 +31,10 @@ type MapWithContext struct {
 }
 
 // Map function that also get a context parameter
-type MapWithContextFunc func(context context.Context, entry interface{}) interface{}
+type MapWithContextFunc func(context map[string]interface{}, entry interface{}) interface{}
 
 // A function that will pass context to the MapWithContextFunc
-type GetContextFunc func() context.Context
+type GetContextFunc func() map[string]interface{}
 
 // FilterFunc is a function that takes an entry an decided
 // if this entry should be filtered out
